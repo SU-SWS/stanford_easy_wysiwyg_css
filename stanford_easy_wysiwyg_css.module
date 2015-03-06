@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * Implements hook_help().
+ */
+function stanford_easy_wysiwyg_css_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#stanford_easy_wysiwyg_css':
+      return '<p>' . t('Ask John.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function stanford_easy_wysiwyg_css_css_alter(&$css) {
+  global $theme;
+  $easy = variable_get("stanford_easy_wysiwyg_css", array());
+
+  // Only add if we don't already have one.
+  if (!isset($easy[$theme])) {
+
+    // Allow theme to alter first.
+    $func = $theme . "_css_alter";
+    if (function_exists($func)) {
+      $func($css);
+    }
+
+    $wysiwyg_css_data = drupal_add_css();
+    $wysiwyg_css = array();
+
+    // Remove print stuff.
+    foreach ($wysiwyg_css_data as $path => $data) {
+      if ($data['media'] == "print") {
+        continue;
+      }
+      $wysiwyg_css[] = $path;
+    }
+
+    $easy[$theme] = $wysiwyg_css;
+    variable_set("stanford_easy_wysiwyg_css", $wysiwyg_css);
+  }
+
+}
+
+/**
+ * [stanford_easy_wysiwyg_css_remove_print description]
+ * @return [type] [description]
+ */
+function stanford_easy_wysiwyg_css_remove_print($value) {
+
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function stanford_easy_wysiwyg_css_flush_caches() {
+  variable_del('stanford_easy_wysiwyg_css');
+}
+
+/**
+ * [stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter description]
+ * @param  [type] &$settings [description]
+ * @param  [type] $context   [description]
+ * @return [type]            [description]
+ */
+function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $context) {
+  $easy = variable_get("stanford_easy_wysiwyg_css", array());
+  $theme = variable_get("theme_default");
+
+  if ($context['profile']->settings['css_setting'] == "easy") {
+    $sheets = $easy[$theme];
+    array_walk($sheets, 'file_create_url');
+    $settings['contentsCss'] = $sheets;
+  }
+
+}
+
+/**
+ * [stanford_easy_wysiwyg_form_css_wysiwyg_profile_form_alter description]
+ * @param  [type] $form       [description]
+ * @param  [type] $form_state [description]
+ * @return [type]             [description]
+ */
+function stanford_easy_wysiwyg_css_form_wysiwyg_profile_form_alter(&$form, &$form_state) {
+  $form['css']['css_setting']['#options']['easy'] = t("Default theme aggregated css");
+}

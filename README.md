@@ -22,7 +22,7 @@ Configuration
 Troubleshooting
 ---
 
-Call Shea on his mobile.
+None at this time.
 
 Contribution / Collaboration
 ---

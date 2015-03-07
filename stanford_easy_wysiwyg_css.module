@@ -6,7 +6,7 @@
 function stanford_easy_wysiwyg_css_help($path, $arg) {
   switch ($path) {
     case 'admin/help#stanford_easy_wysiwyg_css':
-      return '<p>' . t('Ask John.') . '</p>';
+      return '<p>' . t('Better help text is surely needed.') . '</p>';
   }
 }
 

@@ -11,6 +11,16 @@ function stanford_easy_wysiwyg_css_help($path, $arg) {
 }
 
 /**
+ * Implements hook_custom_theme().
+ */
+function stanford_easy_wysiwyg_css_custom_theme() {
+  // Allow the user to request a particular theme via a query parameter.
+  if (isset($_GET['stanford_easy_wysiwyg_css_theme'])) {
+    return $_GET['stanford_easy_wysiwyg_css_theme'];
+  }
+}
+
+/**
  * Implements hook_css_alter().
  */
 function stanford_easy_wysiwyg_css_css_alter(&$css) {
@@ -74,12 +84,7 @@ function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $co
  * @return [type] [description]
  */
 function stanford_easy_wysiwyg_css_get_sheets() {
-  global $theme;
-  global $theme_key;
-  global $theme_path;
-  $original_theme = $theme;
-  $original_theme_key = $theme_key;
-  $original_theme_path = $theme_path;
+
   $easy = variable_get("stanford_easy_wysiwyg_css", array());
   $theme_default = variable_get("theme_default");
 
@@ -88,68 +93,36 @@ function stanford_easy_wysiwyg_css_get_sheets() {
     return $easy[$theme_default];
   }
 
-  $css = drupal_add_css();
-  $original_css = $css;
-  drupal_static_reset('drupal_add_css');
+  // The theme has not been visited yet. Lets do that!
+  $url = url("<front>", array("absolute" => TRUE));
+  $options = array("query" => array("stanford_easy_wysiwyg_css_theme" => $theme_default));
+  $result = drupal_http_request($url, $options);
 
-  // Remove theme layer stuff...
-  foreach ($css as $path => $data) {
-    if ($data['group'] == CSS_THEME) {
-      unset($css[$path]);
-    }
+  // The variable should be in the DB for us now.
+  $easy_dbq = db_select("variable", "v")
+              ->fields('v', array("value"))
+              ->condition('name', 'stanford_easy_wysiwyg_css')
+              ->execute()
+              ->fetchObject();
+
+  // Things can go wrong so do a check like a good dev.
+  if (!isset($easy_dbq->value)) {
+    drupal_set_message("Failed to gather css for the WYSIWYG editor. Please visit the home page and try again.", "error");
+    return;
   }
 
-  $themes = list_themes();
-  $theme_info = $themes[$theme_default];
-  $base_theme_info = !empty($themes[$theme_info->base_theme]) ? $themes[$theme_info->base_theme] : FALSE;
+  // Woot.
+  $easy = unserialize($easy_dbq->value);
 
-  // add defined stylesheets!
-  foreach ($theme_info->stylesheets as $media => $values) {
-    if ($media == "print") {
-      continue;
-    }
-    foreach ($values as $local_path => $full_path) {
-      drupal_add_css(drupal_get_path("theme", $theme_default) . "/" . $local_path);
-    }
+  // One last check before we are home free.
+  if (!isset($easy[$theme_default])) {
+    drupal_set_message("Failed to gather css for the WYSIWYG editor. Please visit the home page and try again.", "error");
+    return;
   }
 
-  if ($base_theme_info) {
-    // add defined stylesheets!
-    foreach ($base_theme_info->stylesheets as $media => $values) {
-      if ($media == "print") {
-        continue;
-      }
-      foreach ($values as $local_path => $full_path) {
-        drupal_add_css(drupal_get_path("theme", $theme_info->base_theme) . "/" . $local_path);
-      }
-    }
-  }
+  // Gotcha!
+  return $easy[$theme_default];
 
-  $add_css = drupal_add_css();
-
-  // Allow theme to alter first.
-  @include_once drupal_get_path("theme", $theme_default) . "/template.php";
-  $func = $theme_default . "_css_alter";
-  if (function_exists($func)) {
-    $theme = $theme_default;
-    $theme_key = $theme_default;
-    $theme_path = drupal_get_path("theme", $theme_default);
-    $func($add_css);
-    $theme = $original_theme;
-    $theme_key = $original_theme_key;
-    $theme_path = $original_theme_path;
-  }
-
-  $final_css = drupal_add_css();
-
-  // Return to our normally scheduled program.
-  drupal_static_reset('drupal_add_css');
-  foreach ($original_css as $path => $options) {
-    drupal_add_css($path, $options);
-  }
-
-  $combined = $css + $final_css;
-  return array_keys($combined);
 }
 
 /**

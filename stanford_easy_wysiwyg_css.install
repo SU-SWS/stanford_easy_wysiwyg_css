@@ -4,7 +4,9 @@
 /**
  * Implements hook_install().
  */
-function stanford_easy_wysiwyg_css_install() {}
+function stanford_easy_wysiwyg_css_install() {
+  variable_set("stanford_easy_wysiwyg_css", array());
+}
 
 /**
  * Implements hook_enable().
@@ -19,7 +21,9 @@ function stanford_easy_wysiwyg_css_disable() {}
 /**
  * Implements hook_uninstall().
  */
-function stanford_easy_wysiwyg_css_uninstall() {}
+function stanford_easy_wysiwyg_css_uninstall() {
+  variable_del("stanford_easy_wysiwyg_css");
+}
 
 
 

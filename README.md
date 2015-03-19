@@ -15,14 +15,9 @@ Install this module like any other module. [See Drupal Documentation](https://dr
 Configuration
 ---
 
-1. Edit a wysiwyg profile and select "Default theme aggregated css" from the css options. 
+1. Edit a wysiwyg profile and select "Default theme aggregated css" from the css options.
 2. Clear caches
 3. Smile
-
-Troubleshooting
----
-
-None at this time.
 
 Contribution / Collaboration
 ---

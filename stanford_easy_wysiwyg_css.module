@@ -6,7 +6,16 @@
 function stanford_easy_wysiwyg_css_help($path, $arg) {
   switch ($path) {
     case 'admin/help#stanford_easy_wysiwyg_css':
-      return '<p>' . t('Better help text is surely needed.') . '</p>';
+      $output = '<h2>' . t('To Use') . '</h2>';
+      $output .= '<ol><li>' . t('Enable the module and all dependencies.') . '</li>';
+      $output .= '<li>' . t('Go to !wysiwyg and edit your desired WYSIWYG profile(s).', array('!wysiwyg' => l('WYSIYWG profiles', 'admin/config/content/wysiwyg'))) . '</li>';
+      $output .= '<li>' . t('In the "CSS" section, select "All CSS from default front-end theme" from the "Editor CSS" dropdown.') . '</li>';
+      $output .= '<li>' . t('Clear the cache.') . '</li>';
+      $output .= '<li>' . t('Your WYSIWYG fields now should show the same CSS styles as your front-end theme.') . '</li>';
+      $output .= '</ol>';
+      $output .= '<p>' . t('Note: the difference between "Use theme CSS" and "All CSS from default front-end theme" is that the former only loads CSS files declared in a theme\'s .info file. ');
+      $output .= t('The setting provided by this module accounts for CSS loaded by other modules, as well as CSS that may be added dynamically by your default theme and its base theme(s).') . '</.p>';
+      return $output;
   }
 }
 
@@ -62,10 +71,7 @@ function stanford_easy_wysiwyg_css_flush_caches() {
 }
 
 /**
- * [stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter description]
- * @param  [type] &$settings [description]
- * @param  [type] $context   [description]
- * @return [type]            [description]
+ * Implements hook_wysiwyg_editor_settings_alter().
  */
 function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $context) {
 
@@ -80,8 +86,8 @@ function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $co
 }
 
 /**
- * [stanford_easy_wysiwyg_css_get_sheets description]
- * @return [type] [description]
+ * Get all the stylesheets used on the front page.
+ * @return array An array of stylesheets.
  */
 function stanford_easy_wysiwyg_css_get_sheets() {
 
@@ -126,11 +132,9 @@ function stanford_easy_wysiwyg_css_get_sheets() {
 }
 
 /**
- * [stanford_easy_wysiwyg_form_css_wysiwyg_profile_form_alter description]
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @return [type]             [description]
+ * Implements hook_form_FORM_ID_alter().
  */
 function stanford_easy_wysiwyg_css_form_wysiwyg_profile_form_alter(&$form, &$form_state) {
-  $form['css']['css_setting']['#options']['easy'] = t("Default theme aggregated css");
+  $form['css']['css_setting']['#options']['easy'] = t("All CSS from default front-end theme");
+  $form['css']['css_setting']['#description'] .= '<br />' . t("All CSS from default front-end theme - loads all CSS used in generating a front-end page.");
 }

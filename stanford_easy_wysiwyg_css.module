@@ -25,7 +25,7 @@ function stanford_easy_wysiwyg_css_help($path, $arg) {
 function stanford_easy_wysiwyg_css_custom_theme() {
   // Allow the user to request a particular theme via a query parameter.
   if (isset($_GET['stanford_easy_wysiwyg_css_theme'])) {
-    return $_GET['stanford_easy_wysiwyg_css_theme'];
+    return check_plain($_GET['stanford_easy_wysiwyg_css_theme']);
   }
 }
 
@@ -78,7 +78,17 @@ function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $co
   if ($context['profile']->settings['css_setting'] == "easy") {
     $sheets = stanford_easy_wysiwyg_css_get_sheets();
     foreach ($sheets as $k => $url) {
-      $sheets[$k] = url($url);
+      if (file_uri_scheme($url) == "public" || file_uri_scheme($url) == "private") {
+
+        $url = file_create_url($url);
+        $url = parse_url($url);
+        $path = $url['path'];
+        $sheets[$k] = $path;
+
+      }
+      else {
+        $sheets[$k] = url($url);
+      }
     }
     $settings['contentsCss'] = $sheets;
   }

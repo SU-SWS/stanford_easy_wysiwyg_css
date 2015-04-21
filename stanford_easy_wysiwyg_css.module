@@ -81,6 +81,11 @@ function stanford_easy_wysiwyg_css_wysiwyg_editor_settings_alter(&$settings, $co
 
   if ($context['profile']->settings['css_setting'] == "easy") {
     $sheets = stanford_easy_wysiwyg_css_get_sheets();
+
+    if (!is_array($sheets)) {
+      return FALSE;
+    }
+
     foreach ($sheets as $k => $url) {
       if (file_uri_scheme($url) == "public" || file_uri_scheme($url) == "private") {
 
@@ -128,7 +133,7 @@ function stanford_easy_wysiwyg_css_get_sheets() {
   // Things can go wrong so do a check like a good dev.
   if (!isset($easy_dbq->value)) {
     drupal_set_message("Failed to gather css for the WYSIWYG editor. Please visit the home page and try again.", "error");
-    return;
+    return FALSE;
   }
 
   // Woot.
@@ -137,7 +142,7 @@ function stanford_easy_wysiwyg_css_get_sheets() {
   // One last check before we are home free.
   if (!isset($easy[$theme_default])) {
     drupal_set_message("Failed to gather css for the WYSIWYG editor. Please visit the home page and try again.", "error");
-    return;
+    return FALSE;
   }
 
   // Gotcha!

@@ -45,6 +45,10 @@ function stanford_easy_wysiwyg_css_css_alter(&$css) {
     return;
   }
 
+  // Let CSS Injector do its thang.
+  if (function_exists('css_injector_css_alter')) {
+    css_injector_css_alter($css);
+  }
   // Allow theme to alter first.
   $func = $theme . "_css_alter";
   if (function_exists($func)) {

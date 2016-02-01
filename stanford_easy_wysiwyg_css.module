@@ -56,6 +56,7 @@ function stanford_easy_wysiwyg_css_css_alter(&$css) {
   if (function_exists('css_injector_css_alter')) {
     css_injector_css_alter($wysiwyg_css_data);
   }
+  // Sort the array of CSS files by weight.
   uasort($wysiwyg_css_data, function($a, $b) {
     return $a['weight'] - $b['weight'];
   });
